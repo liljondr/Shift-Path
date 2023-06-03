@@ -8,13 +8,14 @@ using UnityEngine.EventSystems;
 
 namespace Script.Mover
 {
-    public class SphereItem : MonoBehaviour, IDragHandler
+    public class BallItem : MonoBehaviour, IDragHandler
     {
         [SerializeField] private MeshRenderer myRenderer;
         [SerializeField] private List<MaterailCatalog> materialCatalog ;
          public event Action<int,Direction> OnIsDrag;
         
         public int ID { get; private set; }
+        public int PathID { get; private set; }
         public int PathIndex { get; private set; }
         
         private float moverTime = 0.17f;
@@ -37,7 +38,10 @@ namespace Script.Mover
             OnIsDrag?.Invoke(ID,dragDirection);
             
         }
-
+        public void SetPathID(int id)
+        {
+            PathID = id;
+        }
 
         public void SetPathIndex(int i)
         {
@@ -68,6 +72,8 @@ namespace Script.Mover
             }
             myRenderer.material = materailCatalog.Material;
         }
+
+       
     }
 }
 

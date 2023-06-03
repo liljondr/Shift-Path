@@ -8,9 +8,19 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class PathManager : MonoBehaviour
+
+public interface IPathID
 {
-    
+   public int Id { get; }
+}
+
+
+
+[Serializable]
+public class PathManager : MonoBehaviour, IPathID
+{
+    [SerializeField] private int id;
+    public int Id => id;
     [SerializeField] private GameObject tempVizualPrefab;
     [SerializeField] private ColorType color;
     //список початково заданих точок ( в едіторі для формування кривої-шляху)
@@ -27,8 +37,8 @@ public class PathManager : MonoBehaviour
     private List<Vector2> listStepCurvePoints = new List<Vector2>();
     private List<PathData> listPathPoints = new List<PathData>();
     private int drop;
-    private SphereItem spheraPrefab;
-    private Dictionary<int, SphereItem> dictionarySpheres = new Dictionary<int, SphereItem>();
+    private BallItem ballPrefab;
+    private Dictionary<int, BallItem> dictionaryBalls = new Dictionary<int, BallItem>();
     private bool isSpheraMove;
     private ICalculatorMovementIndex calculatorMovementIndex; //за допомогою стратегії проводимо різний підрахунок індексу для руху
 
@@ -39,13 +49,13 @@ public class PathManager : MonoBehaviour
         
    public void StartCalculatePath()
     {
-        if (drop == 0 || spheraPrefab == null)
+        if (drop == 0 || ballPrefab == null)
         {
             Debug.LogError("No input data. Either drop or sphera");
             return;
         }
 
-        pathStep = spheraPrefab.Diametr / drop;
+        pathStep = ballPrefab.Diametr / drop;
        // float lenth = CalculateLenthPathQuadraticBezierCurves(Point01.position,Point02.position,Point03.position);
        //todo перевірити чи нема повторів по іменах точок і по ID точок
        listStepCurvePoints = GetAllCurvePoints(listStartGivenPoints[0].Id,new List<CurvePoint>(listStartGivenPoints),ref listStepCurvePoints);
@@ -280,7 +290,9 @@ public class PathManager : MonoBehaviour
         }
     }
     
-    public void SetRandomColor(List<ColorType> randomColorsForPathManager)
+   
+    
+    public void SetBallsDataAndCreateBalls(List<BallData> randomColorsForPathManager)
     {
         if (listPathPoints.Count != randomColorsForPathManager.Count)
         {
@@ -290,25 +302,23 @@ public class PathManager : MonoBehaviour
 
         for (int i = 0; i < listPathPoints.Count; i++)
         {
-            SphereItem sphera = Instantiate(spheraPrefab);
-            sphera.transform.position = listPathPoints[i*drop].Position;
-            sphera.SetPathIndex(i*drop);
-            sphera.SetID(i*drop);
-            sphera.SetColor(randomColorsForPathManager[i]);
-            dictionarySpheres[sphera.ID] = sphera;
-            sphera.OnIsDrag += OnSpheraIsDrag;
+            BallItem ball = Instantiate(ballPrefab);
+            ball.transform.position = listPathPoints[i*drop].Position;
+            ball.SetPathID(id);
+            ball.SetPathIndex(i*drop);
+            ball.SetID(randomColorsForPathManager[i].Id);
+            ball.SetColor(randomColorsForPathManager[i].ColorType);
+            dictionaryBalls[ball.ID] = ball;
+            ball.OnIsDrag += OnBallIsDrag;
+            ball.gameObject.name = "Ball_" + randomColorsForPathManager[i].Id.ToString();
         }
-        
-        
-        
-        
     }
-    private void OnSpheraIsDrag(int spheraId, Direction dragDirection)
+    private void OnBallIsDrag(int ballId, Direction dragDirection)
     {
         if(!isSpheraMove)
         {
           
-            SphereItem dragSphera = dictionarySpheres[spheraId];
+            BallItem dragSphera = dictionaryBalls[ballId];
             int moveIndex;
             if (listPathPoints[dragSphera.PathIndex].PreviewDiraction == dragDirection)
             {
@@ -325,7 +335,7 @@ public class PathManager : MonoBehaviour
             }
 
             isSpheraMove = true;
-            foreach (KeyValuePair<int, SphereItem> item in dictionarySpheres)
+            foreach (KeyValuePair<int, BallItem> item in dictionaryBalls)
             {
                 moveIndex = calculatorMovementIndex.GetMovementIndex(item.Value.PathIndex, listPathPoints.Count);
                 
@@ -349,9 +359,9 @@ public class PathManager : MonoBehaviour
         this.drop = drop;
     }
 
-    public void SetSphera(SphereItem sphereItem)
+    public void SetBall(BallItem ballItem)
     {
-        spheraPrefab = sphereItem;
+        ballPrefab = ballItem;
     }
 
     public int GetAmountPointsInPath()
@@ -359,8 +369,11 @@ public class PathManager : MonoBehaviour
         return listPathPoints.Count;
     }
 
+
    
 }
+
+
 
 public enum ColorType
 {
