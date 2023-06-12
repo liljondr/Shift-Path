@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using DG.Tweening;
-using Script.Mover;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -20,7 +19,12 @@ public interface IPathID
 public class PathManager : MonoBehaviour, IPathID
 {
     [SerializeField] private int id;
-    public int Id => id;
+    public int Id
+    {
+        get => id;
+        set => id = value;
+    }
+
     [SerializeField] private GameObject tempVizualPrefab;
     [SerializeField] private ColorType color;
     //список початково заданих точок ( в едіторі для формування кривої-шляху)
@@ -42,6 +46,7 @@ public class PathManager : MonoBehaviour, IPathID
     private bool isSpheraMove;
     private ICalculatorMovementIndex calculatorMovementIndex; //за допомогою стратегії проводимо різний підрахунок індексу для руху
 
+    private bool isBlock;
 
     
    
@@ -310,22 +315,24 @@ public class PathManager : MonoBehaviour, IPathID
             ball.SetColor(randomColorsForPathManager[i].ColorType);
             dictionaryBalls[ball.ID] = ball;
             ball.OnIsDrag += OnBallIsDrag;
+            ball.OnRemoveFromPath += OnBallRemoveFromPath;
             ball.gameObject.name = "Ball_" + randomColorsForPathManager[i].Id.ToString();
         }
     }
+
     private void OnBallIsDrag(int ballId, Direction dragDirection)
     {
-        if(!isSpheraMove)
+        if(!isSpheraMove&&!isBlock)
         {
           
-            BallItem dragSphera = dictionaryBalls[ballId];
+            BallItem dragBall = dictionaryBalls[ballId];
             int moveIndex;
-            if (listPathPoints[dragSphera.PathIndex].PreviewDiraction == dragDirection)
+            if (listPathPoints[dragBall.PathIndex].PreviewDiraction == dragDirection)
             {
                 calculatorMovementIndex = new CalculatorPreviewMovementIndex();
 
             }
-            else if (listPathPoints[dragSphera.PathIndex].NextDiraction == dragDirection)
+            else if (listPathPoints[dragBall.PathIndex].NextDiraction == dragDirection)
             {
                 calculatorMovementIndex = new CalculatorNextMovementIndex();
             }
@@ -341,13 +348,23 @@ public class PathManager : MonoBehaviour, IPathID
                 
                 item.Value.SetDataForMove(moveIndex, listPathPoints[moveIndex], StopMoveToPoint);
             }
-            
-           
         }
-        
-       
     }
     
+    private void OnBallRemoveFromPath(int ballId)
+    {
+        if (!dictionaryBalls.ContainsKey(ballId))
+        {
+            Debug.LogError($"PathManager id {Id} does not have ball id {ballId}");
+            return;
+        }
+        BallItem ballForRemoving = dictionaryBalls[ballId];
+        dictionaryBalls.Remove(ballId);
+        ballForRemoving.OnIsDrag -= OnBallIsDrag;
+        ballForRemoving.OnRemoveFromPath -= OnBallRemoveFromPath;
+    }
+
+
     private void StopMoveToPoint()
     {
         isSpheraMove = false;
@@ -359,7 +376,7 @@ public class PathManager : MonoBehaviour, IPathID
         this.drop = drop;
     }
 
-    public void SetBall(BallItem ballItem)
+    public void SetBallPrefab(BallItem ballItem)
     {
         ballPrefab = ballItem;
     }
@@ -370,7 +387,25 @@ public class PathManager : MonoBehaviour, IPathID
     }
 
 
-   
+    public void SetBallByPathIndex(BallItem ball, int pathindex)
+    {
+        ball.SetPathID(id);
+        ball.SetPathIndex(pathindex);
+        if (dictionaryBalls.ContainsKey(ball.ID))
+        {
+            Debug.LogError($"The new ball id {ball.ID} that is added to the path already exists");
+            return;
+        }
+        dictionaryBalls[ball.ID] = ball;
+        ball.OnIsDrag += OnBallIsDrag;
+        ball.OnRemoveFromPath += OnBallRemoveFromPath;
+        
+    }
+
+    public void SetBlock(bool b)
+    {
+        isBlock = b;
+    }
 }
 
 

@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using DG.Tweening;
-using Script.Mover;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Scripting;
@@ -13,121 +13,126 @@ public class MovingPart : MonoBehaviour
 {
 
    [SerializeField] private Transform movingView;
+   [Space] [SerializeField] private List<MovingPosition> listPosition;
    [Space]
-   [SerializeField] private List<MovingPartData> listData;
+   [SerializeField] private List<MovingPartForTapDetect> listTapDetector;
    [Space]
-   [SerializeField] private List<BallDetector> listBallDetector;
+   [SerializeField] private List<BallDetectorCouple> listBallDetector;
    
   
 
    private MovingPartState state;
-   private TypeMovingPartState carrentState;
+   private TypeMovingPartState currentState;
+   public TypeMovingPartState CurrentState => currentState;
+   private TypeMovingPartState previousState;
+   public TypeMovingPartState PreviousState => previousState;
    public readonly float speedMove = 0.5f;
-   private Dictionary<TypeMovingPartState,MovingPartData> dictonaryDataByState= new Dictionary<TypeMovingPartState, MovingPartData>();
-   // [SerializeField] private List<Transform> listPosition;
-   //  [SerializeField] private List<MovingPartForTapDetect> listTabDetected;
-   //  [SerializeField] private Transform view;
+   public event Action< bool,List<IPathID>> SwitchBlockPath;
+   
+ private Dictionary<TypeMovingPartState, MovingPartState> stateDictionary =
+      new Dictionary<TypeMovingPartState, MovingPartState>();
 
 
    private void Start()
    {
-      CreateDictionaryData();
+    CreateStateDictionary();
       SubscriptionToTap();
-      MovingPartData dataForNormal = GetDataByState(TypeMovingPartState.NORMAL);
-      movingView.localPosition = dataForNormal.Position.localPosition;
-     
-
-      carrentState = TypeMovingPartState.NORMAL;
-      state = new MovingPart_NormalState(this);
-      state.StartState();
+    SettingStartNormalState();
+      
 
    }
 
+  
 
-   private void CreateDictionaryData()
+
+ 
+   
+   private void CreateStateDictionary()
    {
-      foreach (MovingPartData data in listData)
-      {
-         dictonaryDataByState[data.State] = data;
-      }
+     stateDictionary[TypeMovingPartState.NORMAL] = new MovingPart_NormalState(this);
+     stateDictionary[TypeMovingPartState.LEFT] = new MovingPart_LeftState(this);
+     stateDictionary[TypeMovingPartState.RIGHT] = new MovingPart_RightState(this);
    }
    
    private void SubscriptionToTap()
    {
-      foreach (MovingPartData data in listData)
+      foreach (MovingPartForTapDetect tapDetector in listTapDetector)
       {
-         if(data.PartForDetectTab!=null)
-         {
-            data.PartForDetectTab.OnClick += OnTapDetected;
-         }
+         tapDetector.OnClick += OnTapDetected;
       }
    }
-
    
-
-   private MovingPartData GetDataByState(TypeMovingPartState typeState)
+ 
+   
+   private void SettingStartNormalState()
    {
-    
-    if (!dictonaryDataByState.ContainsKey(typeState))
-    {
-       Debug.LogError($"Moving part doesn`t have data for {typeState} state");
-       return null;
-    }
-    return dictonaryDataByState[typeState];
+      Vector2 normalPosition =GetPositionByState(TypeMovingPartState.NORMAL);
+      
+      movingView.localPosition = normalPosition;
+
+      currentState = TypeMovingPartState.NORMAL;
+      state = stateDictionary[TypeMovingPartState.NORMAL];
+      state.StartState();
    }
-   
+
+
+
    private void OnTapDetected(TypeMovingPartState typestate)
    {
       if (typestate == TypeMovingPartState.LEFT)
       {
-         if (carrentState == TypeMovingPartState.NORMAL)
+         if (currentState == TypeMovingPartState.NORMAL)
          {
-            state = new MovingPart_LefrState(this);
-            carrentState = TypeMovingPartState.LEFT;
-           
+            currentState = TypeMovingPartState.LEFT;
+            previousState = TypeMovingPartState.NORMAL;
+            state = stateDictionary[currentState];
+            state.StartState();
+
          }
-         else if (carrentState == TypeMovingPartState.RIGHT)
+         else if (currentState == TypeMovingPartState.RIGHT)
          {
-            state = new MovingPart_NormalState(this);
-            carrentState = TypeMovingPartState.NORMAL;
+            currentState = TypeMovingPartState.NORMAL;
+            previousState = TypeMovingPartState.RIGHT;
+            state = stateDictionary[currentState];
+            state.StartState();
          }
          
-         state.StartState();
+         
       }
       
       else if(typestate ==TypeMovingPartState.RIGHT)
       {
-         if (carrentState == TypeMovingPartState.NORMAL)
+         if (currentState == TypeMovingPartState.NORMAL)
          {
-            state = new MovingPart_RightState(this);
-            carrentState = TypeMovingPartState.RIGHT;
+            currentState = TypeMovingPartState.RIGHT;
+            previousState = TypeMovingPartState.NORMAL;
+            state = stateDictionary[currentState];
+            state.StartState();
          }
-         else if (carrentState == TypeMovingPartState.LEFT)
+         else if (currentState == TypeMovingPartState.LEFT)
          {
-            state = new MovingPart_NormalState(this);
-            carrentState = TypeMovingPartState.NORMAL;
+            currentState = TypeMovingPartState.NORMAL;
+            previousState = TypeMovingPartState.LEFT;
+            state = stateDictionary[currentState];
+            state.StartState();
          }
          
-         state.StartState();
+         
       }
 
    }
 
-   public bool IsInNormalPosition()
-   {
-      MovingPartData dataForNormal = GetDataByState(TypeMovingPartState.NORMAL);
-      bool isInNormalPoition = (movingView.localPosition.x == dataForNormal.Position.localPosition.x &&
-                                movingView.localPosition.y == dataForNormal.Position.localPosition.y)
-         ? true
-         : false;
-      return isInNormalPoition;
-   }
+  
 
    public Vector2 GetPositionByState(TypeMovingPartState typeState)
    {
-      MovingPartData movingPartData = GetDataByState(typeState);
-
-      return movingPartData.Position.localPosition;
+      MovingPosition movingPosition = listPosition.Find(pos=>pos.State==typeState);
+      if (movingPosition == null)
+      {
+         Debug.LogError($"Didn`t find position for {typeState} State");
+        return Vector2.zero ;
+      }
+      return movingPosition.Position;
      ;
    }
 
@@ -135,24 +140,39 @@ public class MovingPart : MonoBehaviour
    {
       movingView.DOLocalMove(newPosition, speedMove);
    }
+
+   public void MoveAttachedBalls(Vector2 delta)
+   {
+      foreach (BallDetectorCouple detector in listBallDetector)
+      {
+         detector.MoveAttachedBalls(delta,speedMove);
+      }
+   }
+
+   public void DisplacementAttachedBalls(TypeMovingPartState previousType, TypeMovingPartState newType)
+   {
+      if (newType != TypeMovingPartState.NORMAL)
+      {
+         foreach (BallDetectorCouple ballDetector in listBallDetector)
+         {
+            ballDetector.DisplacementBallIntoNewMode(newType);
+         }
+
+         List<IPathID> listPathIdForBlock =listTapDetector.Where(td => td.PartState != newType).Select(td=>td.PathId).ToList();
+         SwitchBlockPath?.Invoke(true,listPathIdForBlock);
+         
+      }
+      else
+      {
+         foreach (BallDetectorCouple ballDetector in listBallDetector)
+         {
+            ballDetector.ReturnMovingPartToStartPosition(previousType);
+         }
+         //розблокуємо усі шляхи
+         List<IPathID> listPathId =listTapDetector.Select(td=>td.PathId).ToList();
+         SwitchBlockPath?.Invoke(false,listPathId);
+      }
+   }
 }
 
-[Serializable]
-public class MovingPartData
-{
-   [SerializeField] private TypeMovingPartState state;
-   [SerializeField] private Transform position;
-   [SerializeField] private MovingPartForTapDetect partForDetectTab;
-   [SerializeField] private PathManager pathManager;
- //  private Queue<BallItem> queueBalls = new Queue<BallItem>();
 
-   public TypeMovingPartState State => state;
-
-   public Transform Position => position;
-
-   public MovingPartForTapDetect PartForDetectTab => partForDetectTab;
-
-   public IPathID PathId => pathManager;
-
-
-}

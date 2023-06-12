@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Script.Mover;
 using UnityEngine;
 using Random = System.Random;
 
@@ -9,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private List<PathManager> listPathManagers;
     [SerializeField] private BallItem ballPrefab;
+    [SerializeField] private List<MovingPart> listMovingParts;
     
     private int amountColor;
    
@@ -31,15 +31,20 @@ public class GameManager : MonoBehaviour
         {
             pathManager.IsPath += OnIsPath;
             
-            pathManager.SetBall(ballPrefab);
+            pathManager.SetBallPrefab(ballPrefab);
             pathManager.SetDrop(drop);
             pathManager.StartCalculatePath();
-            
-            
         }
-        
-        
+
+        GlobalSignals.OnDisplacementBallIntoNewPath += OnDisplacementBallIntoNewPath;
+        foreach (MovingPart movingPart in listMovingParts)
+        {
+            movingPart.SwitchBlockPath += OnSwitchBlockPath;
+        }
+
     }
+
+   
 
     private void OnIsPath(int  pointsInPath, ColorType color)
     {
@@ -82,6 +87,33 @@ public class GameManager : MonoBehaviour
             pathManager.SetBallsDataAndCreateBalls(randomColorsForPathManager);
         }
        
+    }
+    
+    private void OnDisplacementBallIntoNewPath(BallItem ball, int pathid, int pathindex)
+    {
+        PathManager pathManager = listPathManagers.Find(path => path.Id == pathid);
+        if (pathManager == null)
+        {
+            Debug.LogError("Didn`t find path manager wit id "+pathid);
+            return;
+        }
+        
+        pathManager.SetBallByPathIndex(ball, pathindex);
+    }
+    
+    private void OnSwitchBlockPath(bool b, List<IPathID> listPathId)
+    {
+        foreach (IPathID path in listPathId)
+        {
+            PathManager pathManager = listPathManagers.Find(pm => pm.Id == path.Id);
+            if (pathManager == null)
+            {
+                Debug.LogError($"Path Manager id = {path.Id} doesn`t find in listPathManagers");
+                return;
+            }
+
+            pathManager.SetBlock(b);
+        }
     }
 
 

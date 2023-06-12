@@ -2,24 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 
-namespace Script.Mover
-{
+
+    
     public class BallItem : MonoBehaviour, IDragHandler
     {
         [SerializeField] private MeshRenderer myRenderer;
         [SerializeField] private List<MaterailCatalog> materialCatalog ;
+        [SerializeField] private TextMeshPro idText;
          public event Action<int,Direction> OnIsDrag;
+         public Action<int> OnRemoveFromPath;
+
+        
+         //public Action<int,int> OnSetInNewPath;
         
         public int ID { get; private set; }
         public int PathID { get; private set; }
         public int PathIndex { get; private set; }
         
         private float moverTime = 0.17f;
-
+        private bool isBlock =false; //чи є режим очікування
+        public bool IsBlock => isBlock;
         public float Diametr
         {
 
@@ -30,6 +37,7 @@ namespace Script.Mover
         }
 
        
+
 
         public void OnDrag(PointerEventData eventData)
         {
@@ -51,6 +59,7 @@ namespace Script.Mover
         public void SetID(int id)
         {
             ID = id;
+            idText.text = id.ToString();
         }
 
 
@@ -73,9 +82,13 @@ namespace Script.Mover
             myRenderer.material = materailCatalog.Material;
         }
 
-       
+
+        public void SwitchBlock(bool b)
+        {
+            isBlock = b;
+        }
     }
-}
+
 
 [Serializable]
 public class MaterailCatalog
