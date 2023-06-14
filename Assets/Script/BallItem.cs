@@ -12,7 +12,6 @@ using UnityEngine.EventSystems;
     public class BallItem : MonoBehaviour, IDragHandler
     {
         [SerializeField] private MeshRenderer myRenderer;
-        [SerializeField] private List<MaterailCatalog> materialCatalog ;
         [SerializeField] private TextMeshPro idText;
          public event Action<int,Direction> OnIsDrag;
          public Action<int> OnRemoveFromPath;
@@ -73,14 +72,9 @@ using UnityEngine.EventSystems;
             });
         }
 
-        public void SetColor(ColorType colorType)
+        public void SetColor(ColorType colorType, Material materail)
         {
-            MaterailCatalog materailCatalog = materialCatalog.Find(c => c.ColorType == colorType);
-            if (materailCatalog == null)
-            {
-                Debug.LogError("Didn`t find color "+colorType + " in sphera prefab");
-            }
-            myRenderer.material = materailCatalog.Material;
+            myRenderer.material = materail;
             this.colorType = colorType;
         }
 
@@ -92,11 +86,3 @@ using UnityEngine.EventSystems;
     }
 
 
-[Serializable]
-public class MaterailCatalog
-{
-    [SerializeField]private ColorType colorType;
-    public ColorType ColorType => colorType;
-    [SerializeField]private Material material;
-    public Material Material => material;
-}

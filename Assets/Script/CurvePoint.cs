@@ -27,7 +27,7 @@ public class CurvePoint : MonoBehaviour
 public enum CurvePointType
 {
    LINE,
-   REFERENCE_Qu_BEZIER,
-   CONTROL_Qu_BEZIER,
+   REFERENCE_Qu_BEZIER, //крайні точки
+   CONTROL_Qu_BEZIER, //точка для вигину дуги
    
 }

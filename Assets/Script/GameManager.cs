@@ -11,6 +11,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private BallItem ballPrefab;
     [SerializeField] private List<MovingPart> listMovingParts;
     [SerializeField] private GameObject winWindow;
+    [SerializeField] private ScriptableObject_ColorData colorData;
+    
     
     private int amountColor;
    
@@ -38,6 +40,7 @@ public class GameManager : MonoBehaviour
             
             pathManager.SetBallPrefab(ballPrefab);
             pathManager.SetDrop(drop);
+            pathManager.SetColorData(colorData);
             pathManager.StartCalculatePath();
         }
 

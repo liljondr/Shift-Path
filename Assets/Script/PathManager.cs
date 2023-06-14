@@ -30,6 +30,7 @@ public class PathManager : MonoBehaviour, IPathID
     [SerializeField] private ColorType color;
     //список початково заданих точок ( в едіторі для формування кривої-шляху)
     [SerializeField] private List<CurvePoint> listStartGivenPoints;
+    [SerializeField] private BackgroundItem backgrounds;
     
 
     public event Action<int, ColorType> IsPath;
@@ -43,6 +44,7 @@ public class PathManager : MonoBehaviour, IPathID
     private List<PathData> listPathPoints = new List<PathData>();
     private int drop;
     private BallItem ballPrefab;
+    private ScriptableObject_ColorData colorData;
     private Dictionary<int, BallItem> dictionaryBalls = new Dictionary<int, BallItem>();
     private bool isSpheraMove;
     private ICalculatorMovementIndex calculatorMovementIndex; //за допомогою стратегії проводимо різний підрахунок індексу для руху
@@ -314,7 +316,8 @@ public class PathManager : MonoBehaviour, IPathID
             ball.SetPathID(id);
             ball.SetPathIndex(i*drop);
             ball.SetID(randomColorsForPathManager[i].Id);
-            ball.SetColor(randomColorsForPathManager[i].ColorType);
+            Material material = colorData.GetMaterialByType(randomColorsForPathManager[i].ColorType);
+            ball.SetColor(randomColorsForPathManager[i].ColorType, material);
             dictionaryBalls[ball.ID] = ball;
             ball.OnIsDrag += OnBallIsDrag;
             ball.OnRemoveFromPath += OnBallRemoveFromPath;
@@ -382,6 +385,12 @@ public class PathManager : MonoBehaviour, IPathID
     {
         ballPrefab = ballItem;
     }
+    public void SetColorData(ScriptableObject_ColorData colorData)
+    {
+        this.colorData = colorData;
+        Color colorForbackground = colorData.GetBackgroundColorByType(color);
+        backgrounds.SetColor(colorForbackground);
+    }
 
     public int GetAmountPointsInPath()
     {
@@ -414,12 +423,10 @@ public class PathManager : MonoBehaviour, IPathID
         bool isReadyBallsSort = dictionaryBalls.Values.All (ball => ball.ColorType == color);
         return isReadyBallsSort;
     }
+
+   
 }
 
 
 
-public enum ColorType
-{
-    YELLOW=0, 
-    RED=1
-}
+
