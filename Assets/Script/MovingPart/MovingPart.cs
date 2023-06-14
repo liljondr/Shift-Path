@@ -28,6 +28,7 @@ public class MovingPart : MonoBehaviour
    public TypeMovingPartState PreviousState => previousState;
    public readonly float speedMove = 0.5f;
    public event Action< bool,List<IPathID>> SwitchBlockPath;
+   public event Action<List<IPathID>> OnCheckSortedBalls;
    
  private Dictionary<TypeMovingPartState, MovingPartState> stateDictionary =
       new Dictionary<TypeMovingPartState, MovingPartState>();
@@ -171,6 +172,7 @@ public class MovingPart : MonoBehaviour
          //розблокуємо усі шляхи
          List<IPathID> listPathId =listTapDetector.Select(td=>td.PathId).ToList();
          SwitchBlockPath?.Invoke(false,listPathId);
+         OnCheckSortedBalls?.Invoke(listPathId);
       }
    }
 }

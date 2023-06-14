@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using DG.Tweening;
 using UnityEngine;
@@ -278,6 +279,7 @@ public class PathManager : MonoBehaviour, IPathID
     
     private void DebugShowPathStepLength(List<PathData> pathDatas)
     {
+        Debug.Log($"________PathManager {color} ____________");
         for (int i = 0; i < pathDatas.Count; i++)
         {
             float distance;
@@ -405,6 +407,12 @@ public class PathManager : MonoBehaviour, IPathID
     public void SetBlock(bool b)
     {
         isBlock = b;
+    }
+
+    public bool IsReadyBallsSort()
+    {
+        bool isReadyBallsSort = dictionaryBalls.Values.All (ball => ball.ColorType == color);
+        return isReadyBallsSort;
     }
 }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = System.Random;
 
@@ -9,6 +10,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<PathManager> listPathManagers;
     [SerializeField] private BallItem ballPrefab;
     [SerializeField] private List<MovingPart> listMovingParts;
+    [SerializeField] private GameObject winWindow;
     
     private int amountColor;
    
@@ -21,10 +23,13 @@ public class GameManager : MonoBehaviour
 
    // private Dictionary<COLORTYPE, int> dictionaryColorAmount = new Dictionary<COLORTYPE, int>();
    private List<ColorType> colorList = new List<ColorType>();
+   //словник готовності сортування
+   private Dictionary<int, bool> readySortDictionary = new Dictionary<int, bool>();
        
     
     void Start()
     {
+        winWindow.SetActive(false);
         amountColor = listPathManagers.Count;
 
         foreach (PathManager pathManager in listPathManagers)
@@ -40,11 +45,24 @@ public class GameManager : MonoBehaviour
         foreach (MovingPart movingPart in listMovingParts)
         {
             movingPart.SwitchBlockPath += OnSwitchBlockPath;
+            movingPart.OnCheckSortedBalls += OnCheckSortedBalls;
         }
+
+        CompletingDictionaryForSortData();
 
     }
 
+    private void CompletingDictionaryForSortData()
+    {
+        foreach (PathManager pathManager in listPathManagers)
+        {
+           bool isReadyBallsSort= pathManager.IsReadyBallsSort();
+           readySortDictionary[pathManager.Id] = isReadyBallsSort;
+        }
+        FinalCheckSortedBalls();
+    }
    
+
 
     private void OnIsPath(int  pointsInPath, ColorType color)
     {
@@ -115,9 +133,33 @@ public class GameManager : MonoBehaviour
             pathManager.SetBlock(b);
         }
     }
-
-
     
+    private void OnCheckSortedBalls(List<IPathID> listPathId)
+    {
+        foreach (IPathID pathID in listPathId)
+        {
+            PathManager pathManager = listPathManagers.Find(pm => pm.Id == pathID.Id);
+            if (pathManager == null)
+            {
+                Debug.LogError("Didn`t find path manager with id = "+pathID.Id);
+                return;
+            }
+
+            bool isReadyBallsSort = pathManager.IsReadyBallsSort();
+            readySortDictionary[pathManager.Id] = isReadyBallsSort;
+        }
+
+        FinalCheckSortedBalls();
+    }
+
+    private void FinalCheckSortedBalls()
+    {
+        bool isAllReady = readySortDictionary.Values.All(isready => isready);
+        if (isAllReady)
+        {
+            winWindow.SetActive(true);
+        }
+    }
 }
 
 public class BallData

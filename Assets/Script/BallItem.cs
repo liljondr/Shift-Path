@@ -16,7 +16,8 @@ using UnityEngine.EventSystems;
         [SerializeField] private TextMeshPro idText;
          public event Action<int,Direction> OnIsDrag;
          public Action<int> OnRemoveFromPath;
-
+         private ColorType colorType;
+         public ColorType ColorType => colorType;
         
          //public Action<int,int> OnSetInNewPath;
         
@@ -80,6 +81,7 @@ using UnityEngine.EventSystems;
                 Debug.LogError("Didn`t find color "+colorType + " in sphera prefab");
             }
             myRenderer.material = materailCatalog.Material;
+            this.colorType = colorType;
         }
 
 
