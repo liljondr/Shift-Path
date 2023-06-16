@@ -284,15 +284,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   myRenderer: {fileID: 3370861036894772534}
-  materialCatalog:
-  - colorType: 0
-    material: {fileID: 2100000, guid: 805be877a4101ca4485e18a4f95eab81, type: 2}
-  - colorType: 1
-    material: {fileID: 2100000, guid: c71bc1b253e12f04fa15681e70c8eebd, type: 2}
-  - colorType: 2
-    material: {fileID: 2100000, guid: aa906fead6b29d245811a675a80f3b52, type: 2}
-  - colorType: 3
-    material: {fileID: 2100000, guid: 1bcc148626f901c42babaf54b56eb356, type: 2}
-  - colorType: 4
-    material: {fileID: 2100000, guid: b517453c9f7ff3d47b993a9c37856230, type: 2}
   idText: {fileID: 5351442074974993968}

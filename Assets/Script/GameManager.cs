@@ -12,18 +12,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private List<MovingPart> listMovingParts;
     [SerializeField] private GameObject winWindow;
     [SerializeField] private ScriptableObject_ColorData colorData;
+    [SerializeField] private SoundManager soundManager;
     
     
-    private int amountColor;
-   
     
-     // private List<PathData> listPathPoints;
     private int drop = 1; //default =1// коефіцієнт поділу , впливає на точність розрахунків (чим більша цифра тим більше буде точок для переміщення сфер)
 
     private int amountPathResult;
-    private int amountBalls;
-
-   // private Dictionary<COLORTYPE, int> dictionaryColorAmount = new Dictionary<COLORTYPE, int>();
+    // private Dictionary<COLORTYPE, int> dictionaryColorAmount = new Dictionary<COLORTYPE, int>();
    private List<ColorType> colorList = new List<ColorType>();
    //словник готовності сортування
    private Dictionary<int, bool> readySortDictionary = new Dictionary<int, bool>();
@@ -31,17 +27,16 @@ public class GameManager : MonoBehaviour
    private void Awake()
    {
        QualitySettings.vSyncCount = 1;
-       Application.targetFrameRate = 030;
+       Application.targetFrameRate = 60;
    }
 
    void Start()
     {
         winWindow.SetActive(false);
-        amountColor = listPathManagers.Count;
-
-        foreach (PathManager pathManager in listPathManagers)
+       foreach (PathManager pathManager in listPathManagers)
         {
             pathManager.IsPath += OnIsPath;
+            pathManager.OnBallsMove += OnBallMove;
             
             pathManager.SetBallPrefab(ballPrefab);
             pathManager.SetDrop(drop);
@@ -54,13 +49,19 @@ public class GameManager : MonoBehaviour
         {
             movingPart.SwitchBlockPath += OnSwitchBlockPath;
             movingPart.OnCheckSortedBalls += OnCheckSortedBalls;
+            movingPart.OnClick += OnMovingPartClick;
+
         }
 
         CompletingDictionaryForSortData();
+        
 
     }
 
-    private void CompletingDictionaryForSortData()
+   
+
+
+   private void CompletingDictionaryForSortData()
     {
         foreach (PathManager pathManager in listPathManagers)
         {
@@ -75,7 +76,6 @@ public class GameManager : MonoBehaviour
     private void OnIsPath(int  pointsInPath, ColorType color)
     {
         amountPathResult++;
-        amountBalls += pointsInPath;
         for (int i = 0; i < pointsInPath; i++)
         {
            colorList.Add(color);
@@ -86,6 +86,11 @@ public class GameManager : MonoBehaviour
             CreateBalls();
         }
        
+    }
+    
+    private void OnBallMove()
+    {
+        soundManager.PlayBallMovingPlay();
     }
 
     private void CreateBalls()
@@ -166,7 +171,13 @@ public class GameManager : MonoBehaviour
         if (isAllReady)
         {
             winWindow.SetActive(true);
+            soundManager.PlayWinSound();
         }
+    }
+    
+    private void OnMovingPartClick()
+    {
+        soundManager.PlayClickMovingPartSound();
     }
 }
 

@@ -4,15 +4,24 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+   [SerializeField] private AudioSource myAudioSource;
+   [SerializeField] private ScriptableObject_SoundData soundData;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+   public void PlayBallMovingPlay()
+   {
+      myAudioSource.volume = 0.5f;
+      myAudioSource.PlayOneShot(soundData.BallMovingSound);
+   }
+
+   public void PlayClickMovingPartSound()
+   {
+       myAudioSource.volume = 1;
+       myAudioSource.PlayOneShot(soundData.ClickMovingPartSound);
+   }
+
+   public void PlayWinSound()
+   {
+       myAudioSource.volume = 1;
+       myAudioSource.PlayOneShot(soundData.WinSound);
+   }
 }

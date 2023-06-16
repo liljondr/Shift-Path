@@ -41,7 +41,8 @@ using UnityEngine.EventSystems;
 
         public void OnDrag(PointerEventData eventData)
         {
-            Direction dragDirection = CalculateDirection.GetDirection(eventData.delta);
+           // Direction dragDirection = CalculateDirection.GetDirectionOf8(eventData.delta);
+            Direction dragDirection = CalculateDirection.GetDirectionOf4(eventData.delta);
             //Debug.Log("dragDirection ="+dragDirection);
             OnIsDrag?.Invoke(ID,dragDirection);
             

@@ -29,6 +29,7 @@ public class MovingPart : MonoBehaviour
    public readonly float speedMove = 0.5f;
    public event Action< bool,List<IPathID>> SwitchBlockPath;
    public event Action<List<IPathID>> OnCheckSortedBalls;
+   public event Action OnClick;
    
  private Dictionary<TypeMovingPartState, MovingPartState> stateDictionary =
       new Dictionary<TypeMovingPartState, MovingPartState>();
@@ -82,6 +83,7 @@ public class MovingPart : MonoBehaviour
 
    private void OnTapDetected(TypeMovingPartState typestate)
    {
+      OnClick?.Invoke();
       if (typestate == TypeMovingPartState.LEFT)
       {
          if (currentState == TypeMovingPartState.NORMAL)

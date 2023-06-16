@@ -34,6 +34,7 @@ public class PathManager : MonoBehaviour, IPathID
     
 
     public event Action<int, ColorType> IsPath;
+    public event Action OnBallsMove;
     public ColorType Color => color;
     
 
@@ -254,7 +255,8 @@ public class PathManager : MonoBehaviour, IPathID
             {
                 int index = (currentDistance - pathStep < pathStep - previewDistance) ? i : i - 1;
                 nextPosition= listStepCurvePoints[index];
-                nextDirection = CalculateDirection.GetDirection(nextPosition-firstPosition);
+                //nextDirection = CalculateDirection.GetDirectionOf8(nextPosition-firstPosition);
+                nextDirection = CalculateDirection.GetDirectionOf4(nextPosition-firstPosition);
                 result.Add(new PathData(firstPosition, previewDirection,nextDirection));
 
                 //Debug.Log("nextDirection = "+nextDirection);
@@ -266,7 +268,7 @@ public class PathManager : MonoBehaviour, IPathID
             previewDistance = currentDistance;
         } while (i<listStepCurvePoints.Count);
         
-        Direction fromLastToFirstPoint =CalculateDirection.GetDirection(result[0].Position-nextPosition); 
+        Direction fromLastToFirstPoint =CalculateDirection.GetDirectionOf8(result[0].Position-nextPosition); 
         result.Add(new PathData(nextPosition, previewDirection,fromLastToFirstPoint));
 
         Direction fromFirstToLastPoint = CalculateDirection.GetInvertDirection(fromLastToFirstPoint);
@@ -353,6 +355,7 @@ public class PathManager : MonoBehaviour, IPathID
                 
                 item.Value.SetDataForMove(moveIndex, listPathPoints[moveIndex], StopMoveToPoint);
             }
+            OnBallsMove?.Invoke();
         }
     }
     

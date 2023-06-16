@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class CalculateDirection : MonoBehaviour
 {
-    public static   Direction GetDirection(Vector2 vector)
+    public static   Direction GetDirectionOf8(Vector2 vector)
     {
         Direction direction= Direction.None;
         float angle = GetAngleTo0X( vector);
@@ -41,6 +41,34 @@ public class CalculateDirection : MonoBehaviour
         {
             direction = Direction.DownRight;
         }
+
+        return direction;
+    }
+    
+    public static   Direction GetDirectionOf4(Vector2 vector)
+    {
+        Direction direction= Direction.None;
+        float angle = GetAngleTo0X( vector);
+        if ((angle < 45f &&  angle >= -45f))
+        {
+            direction = Direction.Right;
+        }
+       
+        else if (angle < 135f && angle >= 45f)
+        {
+            direction = Direction.Up;
+        }
+        
+        else if ((angle <= 180 && angle >= 135f)||(angle >=-180  && angle < -135f))
+        {
+            direction = Direction.Left;
+        }
+        
+        else if (angle < -45f && angle >= -135f)
+        {
+            direction = Direction.Down;
+        }
+       
 
         return direction;
     }
