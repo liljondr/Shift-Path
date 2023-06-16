@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
    
     
      // private List<PathData> listPathPoints;
-    private int drop = 1; // коефіцієнт поділу , впливає на точність розрахунків (чим більша цифра тим більше буде точок для переміщення сфер)
+    private int drop = 1; //default =1// коефіцієнт поділу , впливає на точність розрахунків (чим більша цифра тим більше буде точок для переміщення сфер)
 
     private int amountPathResult;
     private int amountBalls;
@@ -27,9 +27,14 @@ public class GameManager : MonoBehaviour
    private List<ColorType> colorList = new List<ColorType>();
    //словник готовності сортування
    private Dictionary<int, bool> readySortDictionary = new Dictionary<int, bool>();
-       
-    
-    void Start()
+
+   private void Awake()
+   {
+       QualitySettings.vSyncCount = 1;
+       Application.targetFrameRate = 030;
+   }
+
+   void Start()
     {
         winWindow.SetActive(false);
         amountColor = listPathManagers.Count;

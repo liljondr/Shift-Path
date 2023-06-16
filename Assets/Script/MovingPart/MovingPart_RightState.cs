@@ -12,7 +12,6 @@ public class MovingPart_RightState : MovingPartState
     public override void StartState()
     {
         Debug.Log("It`s Right state");
-        Debug.Log("It`s LEFT state");
         Vector2 newPosition = movingPart.GetPositionByState(TypeMovingPartState.RIGHT);
         movingPart.MoveInto(newPosition);
         Vector2 previousPosition = movingPart.GetPositionByState(TypeMovingPartState.NORMAL);

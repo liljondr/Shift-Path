@@ -53,6 +53,8 @@ public class MovingPart : MonoBehaviour
      stateDictionary[TypeMovingPartState.NORMAL] = new MovingPart_NormalState(this);
      stateDictionary[TypeMovingPartState.LEFT] = new MovingPart_LeftState(this);
      stateDictionary[TypeMovingPartState.RIGHT] = new MovingPart_RightState(this);
+     stateDictionary[TypeMovingPartState.UP] = new MovingPart_UpState(this);
+     stateDictionary[TypeMovingPartState.DOWN] = new MovingPart_DownState(this);
    }
    
    private void SubscriptionToTap()
@@ -117,8 +119,42 @@ public class MovingPart : MonoBehaviour
             state = stateDictionary[currentState];
             state.StartState();
          }
-         
-         
+      }
+      
+      else if(typestate ==TypeMovingPartState.UP)
+      {
+         if (currentState == TypeMovingPartState.NORMAL)
+         {
+            currentState = TypeMovingPartState.UP;
+            previousState = TypeMovingPartState.NORMAL;
+            state = stateDictionary[currentState];
+            state.StartState();
+         }
+         else if (currentState == TypeMovingPartState.DOWN)
+         {
+            currentState = TypeMovingPartState.NORMAL;
+            previousState = TypeMovingPartState.DOWN;
+            state = stateDictionary[currentState];
+            state.StartState();
+         }
+      }
+      
+      else if(typestate ==TypeMovingPartState.DOWN)
+      {
+         if (currentState == TypeMovingPartState.NORMAL)
+         {
+            currentState = TypeMovingPartState.DOWN;
+            previousState = TypeMovingPartState.NORMAL;
+            state = stateDictionary[currentState];
+            state.StartState();
+         }
+         else if (currentState == TypeMovingPartState.UP)
+         {
+            currentState = TypeMovingPartState.NORMAL;
+            previousState = TypeMovingPartState.UP;
+            state = stateDictionary[currentState];
+            state.StartState();
+         }
       }
 
    }

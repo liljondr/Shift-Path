@@ -11,10 +11,9 @@ public class MovingPart_NormalState : MovingPartState
     public override void StartState()
     {
         Debug.Log("It`s NORMAL state");
-        if (movingPart.PreviousState==TypeMovingPartState.LEFT||
-            movingPart.PreviousState==TypeMovingPartState.RIGHT)
+        if (movingPart.PreviousState!=TypeMovingPartState.NORMAL)
         {
-           Debug.Log("It`s LEFT state");
+           
            Vector2 newPosition = movingPart.GetPositionByState(TypeMovingPartState.NORMAL);
            movingPart.MoveInto(newPosition);
            Vector2 previousPosition = movingPart.GetPositionByState(movingPart.PreviousState);

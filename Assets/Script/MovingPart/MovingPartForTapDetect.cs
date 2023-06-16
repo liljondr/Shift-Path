@@ -20,10 +20,3 @@ public class MovingPartForTapDetect : MonoBehaviour, IPointerClickHandler
        OnClick?.Invoke(partState);
     }
 }
-
-public enum TypeMovingPartState
-{
-    NORMAL,
-    LEFT,
-    RIGHT
-}

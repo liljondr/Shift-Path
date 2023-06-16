@@ -26,7 +26,7 @@ public class PathManager : MonoBehaviour, IPathID
         set => id = value;
     }
 
-    [SerializeField] private GameObject tempVizualPrefab;
+   // [SerializeField] private GameObject tempVizualPrefab;
     [SerializeField] private ColorType color;
     //список початково заданих точок ( в едіторі для формування кривої-шляху)
     [SerializeField] private List<CurvePoint> listStartGivenPoints;
@@ -69,11 +69,11 @@ public class PathManager : MonoBehaviour, IPathID
        listStepCurvePoints = GetAllCurvePoints(listStartGivenPoints[0].Id,new List<CurvePoint>(listStartGivenPoints),ref listStepCurvePoints);
        listPathPoints = GetPathPoints(listStepCurvePoints);
        DebugShowPathStepLength(listPathPoints);
-       foreach (PathData pathData in listPathPoints)
+      /* foreach (PathData pathData in listPathPoints)
        {
            GameObject temp =Instantiate(tempVizualPrefab);
            temp.transform.position = pathData.Position;
-       }
+       }*/
 
        IsPath?.Invoke(listPathPoints.Count, color);
     }
